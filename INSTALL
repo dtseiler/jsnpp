@@ -1,0 +1,20 @@
+# $Id$
+
+JSNPP requires apache ant, http://ant.apache.org, to build.  Once you have
+apache ant installed, you can build JSNPP with
+
+$ ant all
+
+This will build the API jar files, examples jar files, and API html
+documentation.  The jar files are placed in the lib/ sub-directory, the API
+html documentation is placed in the docs/api/ sub-directory.
+
+EXAMPLES
+~~~~~~~~
+To run the example code, you'll want to build the example
+
+$ ant examples
+
+Then run the example
+
+$ java -cp $CLASSPATH:jsnpp.jar:jsnpp-examples.jar jsnpp.SNPPExample
