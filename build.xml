@@ -80,16 +80,18 @@
     <mkdir dir="${api}"/>
     <javadoc packagenames="jsnpp.*"
              destdir="${api}"
-             Overview="docs/overview.html"
              protected="true"
              version="true"
              author="true"
              Windowtitle="jsnpp API documentation"
-             bottom="&lt;font size=-1&gt;&lt;i&gt;&amp;copy; Copyright 2002 by Oran Kelly&lt;/i&gt;&lt;/font&gt;"
+             bottom="&lt;font size=-1&gt;&lt;i&gt;&amp;copy; Copyright 2005 by Don Seiler&lt;/i&gt;&lt;/font&gt;"
              header="&lt;b&gt;&lt;font size=-1&gt;${ant.project.name}&lt;/font&gt;&lt;br&gt;documentation&lt;/b&gt;">
       <fileset dir="${api-src}" />
       <fileset dir="${examples-src}" />
       <classpath refid="build.classpath"/>
+      <link offline="true"
+          href="http://java.sun.com/j2se/1.4.2/docs/api/"
+          packagelistLoc="/tmp"/>
     </javadoc>
   </target>
 
