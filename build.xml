@@ -1,0 +1,252 @@
+<!--
+/*
+ * JSNPP - Java SNPP API.
+ * Copyright (C) 2005  Don Seiler <don@seiler.us>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Inspired by build.xml for smppapi by Oran Kelly
+ * $Id$
+ */
+-->
+
+<project name="jsnpp" basedir="." default="api-jar">
+
+  <!-- Load in the build properties -->
+  <property file="build.properties"/>
+
+  <!-- Get VERSION and set up filter for @VERSION@ string -->
+  <loadfile property="version" srcFile="VERSION">
+      <filterchain>
+          <striplinebreaks/>
+      </filterchain>
+  </loadfile>
+  <filter token="VERSION" value="${version}"/>
+
+  <!-- Any libraries needed to build the base API go in here. -->
+  <path id="build.classpath">
+    <!--
+    <pathelement location="${lib}/commons-logging.jar"/>
+    -->
+  </path>
+
+
+  <target name="init">
+    <tstamp/>
+    <mkdir dir="${lib}"/>
+  </target>
+
+  <!-- Build all -->
+  <!--
+  <target name="all" depends="init,jars,docs,tests"/>
+  -->
+  <target name="all" depends="init,jars,docs"/>
+
+  <!-- Build the API -->
+  <target name="compile-api" depends="init">
+    <mkdir dir="${api-build}"/>
+    <javac srcdir="${api-src}" destdir="${api-build}" deprecation="true"
+      debug="${build.debug}">
+      <classpath refid="build.classpath"/>
+    </javac>
+  </target>
+
+  <!-- Build the jsnpp Jar file -->
+  <target name="api-jar" depends="init,compile-api">
+    <jar jarfile="${lib}/${api-jar}">
+      <fileset dir="${api-build}"/>
+    </jar>
+  </target>
+
+  <target name="clean-api" depends="init">
+    <delete dir="${api-build}"/>
+    <delete file="${lib}/${api-jar}"/>
+  </target>
+
+  <!-- Build the javadoc files -->
+  <target name="docs" depends="init">
+    <mkdir dir="${apiDoc}"/>
+    <javadoc packagenames="jsnpp.*"
+             destdir="${apiDoc}"
+             Overview="docs/overview.html"
+             protected="true"
+             version="true"
+             author="true"
+             Windowtitle="jsnpp API documentation"
+             bottom="&lt;font size=-1&gt;&lt;i&gt;&amp;copy; Copyright 2002 by Oran Kelly&lt;/i&gt;&lt;/font&gt;"
+             header="&lt;b&gt;&lt;font size=-1&gt;${ant.project.name}&lt;/font&gt;&lt;br&gt;documentation&lt;/b&gt;">
+      <fileset dir="${api-src}" />
+      <!--
+      <fileset dir="${examples-src}" />
+      -->
+      <classpath refid="build.classpath"/>
+    </javadoc>
+  </target>
+
+  <target name="clean-docs" depends="init">
+    <delete dir="${apiDoc}"/>
+  </target>
+
+  <!-- Build the examples -->
+  <!--
+  <target name="compile-examples" depends="init,compile-api">
+    <mkdir dir="${examples-build}"/>
+    <javac srcdir="${examples-src}" destdir="${examples-build}"
+        deprecation="true">
+      <classpath>
+        <path refid="build.classpath"/>
+        <pathelement location="${api-build}"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="clean-examples" depends="init">
+    <delete dir="${examples-build}"/>
+    <delete file="${lib}/${examples-jar}"/>
+  </target>
+  -->
+
+  <!-- Build the examples jar -->
+  <!--
+  <target name="examples-jar" depends="init,compile-examples,api-jar">
+    <jar jarfile="${lib}/${examples-jar}">
+      <fileset dir="${examples-build}"/>
+    </jar>
+  </target>
+  -->
+
+
+  <!-- Build the tests -->
+  <!--
+  <target name="compile-tests" depends="init,compile-api">
+    <mkdir dir="${tests-build}"/>
+    <javac srcdir="${tests-src}" destdir="${tests-build}" deprecation="true"
+      debug="true">
+      <classpath>
+        <pathelement location="${lib}/junit.jar"/>
+        <pathelement location="${api-build}"/>
+        <pathelement location="${examples-build}"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="clean-tests" depends="init">
+    <delete dir="${tests-build}"/>
+    <delete file="${lib}/${tests-jar}"/>
+  </target>
+
+  <target name="tests-jar" depends="init,compile-tests,api-jar">
+    <jar jarfile="${lib}/${tests-jar}">
+      <fileset dir="${tests-build}"/>
+    </jar>
+  </target>
+
+  <target name="tests" depends="init,api-jar,tests-jar">
+    <java classname="junit.textui.TestRunner" fork="true">
+      <arg value="jsnpp.AllTests"/>
+      <classpath>
+        <pathelement location="${resources}"/>
+        <path refid="build.classpath"/>
+        <pathelement location="${lib}/junit.jar"/>
+        <pathelement location="${lib}/${tests-jar}"/>
+        <pathelement location="${lib}/${api-jar}"/>
+      </classpath>
+    </java>
+  </target>
+
+  <target name="gui-tests" depends="init,api-jar,tests-jar">
+    <java classname="junit.swingui.TestRunner" fork="true">
+      <arg value="jsnpp.AllTests"/>
+      <classpath>
+        <pathelement location="${resources}"/>
+        <path refid="build.classpath"/>
+        <pathelement location="${lib}/junit.jar"/>
+        <pathelement location="${lib}/${tests-jar}"/>
+        <pathelement location="${lib}/${api-jar}"/>
+      </classpath>
+    </java>
+  </target>
+  -->
+
+  <!-- Build the project jar files -->
+  <!--
+  <target name="jars" depends="init,api-jar,examples-jar,tests-jar"/>
+  -->
+  <target name="jars" depends="init,api-jar"/>
+
+  <target name="clean-jars">
+    <delete>
+      <fileset dir="${lib}">
+        <!--
+        <include name="${tests-jar}"/>
+        <include name="${examples-jar}"/>
+        -->
+        <include name="${api-jar}"/>
+      </fileset>
+    </delete>
+  </target>
+
+  <!-- Build the distribution. -->
+  <target name="dist" depends="init,really-clean,all" if="version">
+      <property name="releaseDir" value="${dist}/${ant.project.name}-${version}"/>
+
+    <mkdir dir="${releaseDir}"/>
+
+    <!-- Output Java build version info -->
+    <echo level="info" file="${releaseDir}/BUILDINFO">
+      This ${ant.project.name} distribution was built on the following:
+      JRE version: ${java.version}
+      JRE vendor: ${java.vendor} (${java.vendor.url})
+      Built on: ${os.name} ${os.version} architecture: ${os.arch}
+    </echo>
+
+    <copy todir="${releaseDir}" includeemptydirs="no">
+      <fileset dir="." defaultexcludes="true">
+        <exclude name="${build}/**/*.class"/>
+        <exclude name="${dist}/**/*"/>
+        <!-- Vim swap files -->
+        <exclude name="**/.*.sw?"/>
+      </fileset>
+    </copy>
+
+    <tar tarfile="${dist}/${ant.project.name}-${version}.tar" basedir="${releaseDir}"/>
+    <gzip src="${dist}/${ant.project.name}-${version}.tar" zipfile="${dist}/${ant.project.name}-${version}.tar.gz"/>
+    <delete file="${dist}/${ant.project.name}-${version}.tar"/>
+  </target>
+
+  <target name="clean-dist" depends="init">
+    <delete dir="${dist}"/>
+  </target>
+
+  <!-- Clean up -->
+  <!--
+  <target name="clean" depends="init,clean-dist,clean-docs,clean-tests,clean-examples,clean-api">
+    -->
+  <target name="clean" depends="init,clean-dist,clean-docs,clean-api">
+    <delete dir="${build}"/>
+  </target>
+
+  <!-- Clean everything, including any editor backup files etc. -->
+  <target name="really-clean" depends="init,clean">
+    <delete>
+      <fileset dir="." defaultexcludes="no">
+        <include name="**/*~"/>
+        <include name="**/*.bak"/>
+        <include name="**/*-old"/>
+      </fileset>
+    </delete>
+  </target>
+
+</project>
