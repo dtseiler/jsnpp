@@ -81,6 +81,10 @@ public class Message {
 		state = STATE_CONN;
 	}
 
+	/**
+	 * Initiates the process of sending the message, starting with creating
+	 * the connection.
+	 */
 	public void send() throws UnknownHostException, IOException, Exception {
 		handleResponse(conn.connect());
 	}
