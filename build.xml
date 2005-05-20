@@ -77,9 +77,9 @@
 
   <!-- Build the javadoc files -->
   <target name="docs" depends="init">
-    <mkdir dir="${apiDoc}"/>
+    <mkdir dir="${api}"/>
     <javadoc packagenames="jsnpp.*"
-             destdir="${apiDoc}"
+             destdir="${api}"
              Overview="docs/overview.html"
              protected="true"
              version="true"
@@ -88,19 +88,16 @@
              bottom="&lt;font size=-1&gt;&lt;i&gt;&amp;copy; Copyright 2002 by Oran Kelly&lt;/i&gt;&lt;/font&gt;"
              header="&lt;b&gt;&lt;font size=-1&gt;${ant.project.name}&lt;/font&gt;&lt;br&gt;documentation&lt;/b&gt;">
       <fileset dir="${api-src}" />
-      <!--
       <fileset dir="${examples-src}" />
-      -->
       <classpath refid="build.classpath"/>
     </javadoc>
   </target>
 
   <target name="clean-docs" depends="init">
-    <delete dir="${apiDoc}"/>
+    <delete dir="${api}"/>
   </target>
 
   <!-- Build the examples -->
-  <!--
   <target name="compile-examples" depends="init,compile-api">
     <mkdir dir="${examples-build}"/>
     <javac srcdir="${examples-src}" destdir="${examples-build}"
@@ -116,16 +113,13 @@
     <delete dir="${examples-build}"/>
     <delete file="${lib}/${examples-jar}"/>
   </target>
-  -->
 
   <!-- Build the examples jar -->
-  <!--
   <target name="examples-jar" depends="init,compile-examples,api-jar">
     <jar jarfile="${lib}/${examples-jar}">
       <fileset dir="${examples-build}"/>
     </jar>
   </target>
-  -->
 
 
   <!-- Build the tests -->
@@ -184,15 +178,15 @@
   <!--
   <target name="jars" depends="init,api-jar,examples-jar,tests-jar"/>
   -->
-  <target name="jars" depends="init,api-jar"/>
+  <target name="jars" depends="init,api-jar,examples-jar"/>
 
   <target name="clean-jars">
     <delete>
       <fileset dir="${lib}">
         <!--
         <include name="${tests-jar}"/>
-        <include name="${examples-jar}"/>
         -->
+        <include name="${examples-jar}"/>
         <include name="${api-jar}"/>
       </fileset>
     </delete>
@@ -234,7 +228,7 @@
   <!--
   <target name="clean" depends="init,clean-dist,clean-docs,clean-tests,clean-examples,clean-api">
     -->
-  <target name="clean" depends="init,clean-dist,clean-docs,clean-api">
+  <target name="clean" depends="init,clean-dist,clean-docs,clean-examples,clean-api">
     <delete dir="${build}"/>
   </target>
 
