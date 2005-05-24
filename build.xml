@@ -217,13 +217,24 @@
       </fileset>
     </copy>
 
-    <tar tarfile="${dist}/${ant.project.name}-${version}.tar" basedir="${releaseDir}"/>
+    <tar tarfile="${dist}/${ant.project.name}-${version}.tar" basedir="${dist}"/>
     <gzip src="${dist}/${ant.project.name}-${version}.tar" zipfile="${dist}/${ant.project.name}-${version}.tar.gz"/>
     <delete file="${dist}/${ant.project.name}-${version}.tar"/>
   </target>
 
   <target name="clean-dist" depends="init">
     <delete dir="${dist}"/>
+  </target>
+
+  <target name="upload">
+      <property name="releaseFile" value="${dist}/${ant.project.name}-${version}.tar.gz"/>
+      <ftp
+          server="upload.sourceforge.net"
+          userid="anonymous"
+          password="rizzo@users.sourceforge.net"
+          remotedir="/incoming">
+          <fileset file="${releaseFile}"/>
+      </ftp>
   </target>
 
   <!-- Clean up -->
