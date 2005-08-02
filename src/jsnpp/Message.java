@@ -31,16 +31,23 @@ import java.net.UnknownHostException;
 public class Message {
 
 	// Maximum SNPP Level Supported
-	public static final int SNPP_LEVEL = 1;
+	public static final int MAX_SNPP_LEVEL = 1;
 
 	// Message states
 	public static final int STATE_UNDEF = -1;
 	public static final int STATE_CONN = 0;
-	public static final int STATE_CALL = 1;
-	public static final int STATE_PAGE = 2;
-	public static final int STATE_MESS = 3;
-	public static final int STATE_SEND = 4;
-	public static final int STATE_QUIT = 5;
+	public static final int STATE_PAGE = 11;
+	public static final int STATE_MESS = 12;
+	public static final int STATE_SEND = 13;
+	public static final int STATE_QUIT = 14;
+	public static final int STATE_DATA = 21;
+	public static final int STATE_LOGI = 22;
+	//public static final int STATE_LEVE = 23;
+	public static final int STATE_COVE = 24;
+	public static final int STATE_SUBJ = 25;
+	public static final int STATE_HOLD = 26;
+	public static final int STATE_CALL = 27;
+	public static final int STATE_ALER = 28;
 
 	/** Connection to server */
 	private Connection conn = null;
@@ -48,23 +55,51 @@ public class Message {
 	/** Message state */
 	private int state = STATE_UNDEF;
 
-	/** Message recipient */
-	private String recipient = null;
+	/** Pager (recipient) */
+	private String pager = null;
 
-	/** Message sender */
-	private String sender = null;
+	/** CallerIdentifier */
+	private String callerIdentifier = null;
 
 	/** Message */
-	// XXX Check into hard limits on message length
 	private String message = null;
+	
+	/** 
+	 * Data 
+	 *
+	 * A message cannot send both MESS and DATA.
+	 */
+	private String[] data = null;
+	
+	/** Subject */
+	private String subject = null;
+	
+	/** Login */
+	private String login = null;
+	
+	/** Service Level */
+	private int serviceLevel = -1;
+	
 
 
 	/** Level */
-	private int level = SNPP_LEVEL;
+	private int level = MAX_SNPP_LEVEL;
 
 
 	/** Constructor */
 	public Message() {
+	}
+	
+	/** Constructor */
+	public Message (String host,
+					int port,
+					String recipient,
+					String message) {
+		setRecipient(recipient);
+		setMessage(message);
+		
+		conn = new Connection(host, port);
+		state = STATE_CONN;
 	}
 
 	/** Constructor */
@@ -73,9 +108,9 @@ public class Message {
 					String sender,
 					String recipient,
 					String message) {
-		this.sender = sender;
-		this.recipient = recipient;
-		this.message = message;
+		setSender(sender);
+		setRecipient(recipient);
+		setMessage(message);
 
 		conn = new Connection(host, port);
 		state = STATE_CONN;
@@ -123,16 +158,17 @@ public class Message {
 
 	/** Sets sender */
 	public void setSender(String sender) {
-		this.sender = sender;
+		this.callerIdentifier = sender;
 	}
 
 	/** Sets recipient */
 	public void setRecipient(String recipient) {
-		this.recipient = recipient;
+		this.pager = recipient;
 	}
 
 	/** Sets message */
 	public void setMessage(String message) {
+		// Check for \n chars
 		this.message = message;
 	}
 
@@ -143,10 +179,20 @@ public class Message {
 
 	/** Sets SNPP level of this message */
 	public void setLevel(int level) {
-		if (level <= SNPP_LEVEL)
+		if (level <= MAX_SNPP_LEVEL)
 			this.level = level;
 		else
-			this.level = SNPP_LEVEL;
+			this.level = MAX_SNPP_LEVEL;
+	}
+	
+	/** Sets subject */
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+	
+	/** Sets data */
+	public void setData(String[] data) {
+		this.data = data;
 	}
 
 	//
@@ -155,31 +201,39 @@ public class Message {
 
 	/** Handles reponse from server */
 	private void handleResponse(String response) throws IOException, Exception {
+		
+		// XXX Probably safe to ignore all "500 Command not implemented" messages
+		// XXX PAGE should be sent last before SEND
 		switch (state) {
 			case STATE_CONN:
 				if (response.startsWith("220"))
-					sendPageCommand();
+					sendPAGECommand();
 				else
 					errorOut(response);
 				break;
 
 			case STATE_PAGE:
-				if (response.startsWith("250"))
-					sendMessCommand();
-				else
+				if (response.startsWith("250")) {
+					if ((level >= 2) && (callerIdentifier != null))
+						sendCALLCommand();
+					else
+						sendMESSCommand();
+				} else
 					errorOut(response);
 				break;
 
 			case STATE_MESS:
 				if (response.startsWith("250"))
-					sendSendCommand();
+					sendSENDCommand();
 				else
 					errorOut(response);
 				break;
 
 			case STATE_SEND:
-				if (response.startsWith("250"))
-					sendQuitCommand();
+				if (response.startsWith("250")
+						|| response.startsWith("860") 
+						|| response.startsWith("960"))
+					sendQUITCommand();
 				else
 					errorOut(response);
 				break;
@@ -190,33 +244,46 @@ public class Message {
 				else
 					errorOut(response);
 				break;
-
 		}
 
 	}
 
 
-	private void sendPageCommand() throws IOException, Exception {
+	private void sendPAGECommand() throws IOException, Exception {
 		state = STATE_PAGE;
-		String msg = "PAGE " + recipient;
+		String msg = "PAGE " + pager;
+		handleResponse(conn.send(msg));
+	}
+	
+	
+	private void sendCALLCommand() throws IOException, Exception {
+		state = STATE_CALL;
+		String msg = "CALL " + callerIdentifier;
+		handleResponse(conn.send(msg));
+	}
+	
+	
+	private void sendSUBJCommand() throws IOException, Exception {
+		state = STATE_SUBJ;
+		String msg = "SUBJ " + subject;
 		handleResponse(conn.send(msg));
 	}
 
 
-	private void sendMessCommand() throws IOException, Exception {
+	private void sendMESSCommand() throws IOException, Exception {
 		state = STATE_MESS;
 		String msg = "MESS " + message;
 		handleResponse(conn.send(msg));
 	}
 
 
-	private void sendSendCommand() throws IOException, Exception {
+	private void sendSENDCommand() throws IOException, Exception {
 		state = STATE_SEND;
 		handleResponse(conn.send("SEND"));
 	}
 
 
-	private void sendQuitCommand() throws IOException, Exception {
+	private void sendQUITCommand() throws IOException, Exception {
 		state = STATE_QUIT;
 		handleResponse(conn.send("QUIT"));
 	}
