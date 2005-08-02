@@ -26,7 +26,7 @@ import java.net.UnknownHostException;
 public class SNPPExample {
 
 	public static void main(String[] args) {
-		Message m = new Message("despise.nbill.cellcom.com", 444, "don", "don", "testing");
+		Message m = new Message("your.snppserver.com", 444, "don", "don", "The system is DOWN.");
 		try {
 			m.send();
 		} catch (UnknownHostException e) {
