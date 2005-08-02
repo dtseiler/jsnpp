@@ -81,7 +81,6 @@ public class Connection {
 
 	/** Sends data to SNPP server */
 	public String send(String data) throws IOException {
-		//System.out.println("Sending " + data);
 		out.println(data);
 		return in.readLine();
 	}
