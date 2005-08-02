@@ -1,6 +1,9 @@
 ChangeLog for jsnpp - http://jsnpp.sourceforge.net
 $Id$
 
-*jsnpp-0.1.0 (20 May 2005)
+*jsnpp-0.1.1cvs
+	Bug Fixes:
+	* Fixed distfile creation so it is tarred inside a release dir.
 
+*jsnpp-0.1.0 (20 May 2005)
 	* Initial creation.
