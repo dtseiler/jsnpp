@@ -37,7 +37,7 @@ public class Level1Test extends TestCase {
 	}
 
 	protected void setUp() {
-		m = new Message("test.mysnppserver.com", 444, "don", "don", "The system is DOWN.");
+		m = new Message("test.mysnppserver.com", 444, "don", "The system is DOWN.");
 	}
 
 	protected void tearDown() {
