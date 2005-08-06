@@ -31,7 +31,7 @@ import java.net.UnknownHostException;
 public class Message {
 
 	// Maximum SNPP Level Supported
-	public static final int MAX_SNPP_LEVEL = 1;
+	public static final int MAX_SNPP_LEVEL = 3;
 
 	// Message states
 	public static final int STATE_UNDEF = -1;
@@ -42,7 +42,7 @@ public class Message {
 	public static final int STATE_QUIT = 14;
 	public static final int STATE_DATA = 21;
 	public static final int STATE_LOGI = 22;
-	//public static final int STATE_LEVE = 23;
+	public static final int STATE_LEVE = 23;
 	public static final int STATE_COVE = 24;
 	public static final int STATE_SUBJ = 25;
 	public static final int STATE_HOLD = 26;
@@ -80,11 +80,17 @@ public class Message {
 	/** Service Level */
 	private int serviceLevel = -1;
 	
-
+	/** Coverage Area */
+	private int coverageArea = -1;
+	
+	/** Hold Until YYMMDDHHMISS (+/- GMT diff) */
+	private String holdUntil = null;
+	
+	/** Alert Override 0-DoNotAlert or 1-Alert */
+	private boolean alertOverride = false;
 
 	/** Level */
 	private int level = MAX_SNPP_LEVEL;
-
 
 	/** Constructor */
 	public Message() {
@@ -93,50 +99,56 @@ public class Message {
 	/** Constructor */
 	public Message (String host,
 					int port,
-					String recipient,
+					String pager,
 					String message) {
-		setRecipient(recipient);
+		setPager(pager);
 		setMessage(message);
 		
 		conn = new Connection(host, port);
 		state = STATE_CONN;
 	}
 
-	/** Constructor */
+	/** 
+	 * Constructor 
+	 *
+	 * @deprecated
+	 */
 	public Message (String host,
 					int port,
 					String sender,
-					String recipient,
+					String pager,
 					String message) {
-		setSender(sender);
-		setRecipient(recipient);
+		setCallerIdentifier(sender);
+		setPager(pager);
 		setMessage(message);
 
-		conn = new Connection(host, port);
-		state = STATE_CONN;
+		setConnectionInfo(host, port);
 	}
 
-	/**
-	 * Initiates the process of sending the message, starting with creating
-	 * the connection.
-	 */
-	public void send() throws UnknownHostException, IOException, Exception {
-		handleResponse(conn.connect());
-	}
 
 	/** Returns state */
 	public int getState () {
 		return state;
 	}
 
-	/** Returns sender */
-	public String getSender () {
-		return sender;
+	
+	/** Returns callerIdentifier */
+	public String getCallerIdentifier () {
+		return callerIdentifier;
 	}
 
-	/** Returns recipient */
+	/**
+	 * Returns recipient 
+	 *
+	 * @deprecated
+	 */
 	public String getRecipient () {
-		return recipient;
+		return getPager();
+	}
+	
+	/** Returns pager */
+	public String getPager() {
+		return pager;
 	}
 
 	/** Returns message */
@@ -156,14 +168,33 @@ public class Message {
 		this.state = state;
 	}
 
-	/** Sets sender */
+	/** 
+	 * Sets sender 
+	 *
+	 * @deprecated
+	 */
 	public void setSender(String sender) {
-		this.callerIdentifier = sender;
+		setCallerIdentifier(sender);
+	}
+	
+	
+	/** Sets callerIdentifer */
+	public void setCallerIdentifier(String callerIdentifier) {
+		this.callerIdentifier = callerIdentifier;
 	}
 
-	/** Sets recipient */
+	/** 
+	 * Sets recipient 
+	 *
+	 * @deprecated
+	 */
 	public void setRecipient(String recipient) {
-		this.pager = recipient;
+		setPager(recipient);
+	}
+	
+	/** Sets pager */
+	public void setPager(String pager) {
+		this.pager = pager;
 	}
 
 	/** Sets message */
@@ -194,27 +225,101 @@ public class Message {
 	public void setData(String[] data) {
 		this.data = data;
 	}
+	
+	/** Sets alert override */
+	public void setAlertOverride(boolean alertOverride) {
+		this.alertOverride = alertOverride;
+	}
+	
+	
+	/**
+	 * Sets holdUntil
+	 * 
+	 * Must be in YYMMDDHHMISS format
+	 */
+	public void setHoldUntil(String holdUntil) {
+		this.holdUntil = holdUntil;
+	}
 
+	
+	/** Sets login */
+	public void setLogin(String login) {
+		this.login = login;
+	}
+	
 	//
 	// Function to format and send messages
 	//
 
-	/** Handles reponse from server */
+	/** Connects to server and sends message */
+	public void send() throws IOException, Exception{
+		handleResponse(conn.connect());
+	}
+	
+	/**
+	 * Handles reponse from server.
+	 *
+	 * We ignore all 500 messages (Command Not Implemented) from optional Level 2
+	 * functions (optional as defined in RFC 1861).
+	 */
 	private void handleResponse(String response) throws IOException, Exception {
 		
-		// XXX Probably safe to ignore all "500 Command not implemented" messages
-		// XXX PAGE should be sent last before SEND
+		// XXX PAGE should be sent AFTER LEVE, ALER, HOLD, COVE
 		switch (state) {
 			case STATE_CONN:
 				if (response.startsWith("220"))
-					sendPAGECommand();
+					if (level >= 2)
+						sendLOGICommand();
+					else
+						sendPAGECommand();
 				else
 					errorOut(response);
 				break;
+				
+				
+			case STATE_LOGI:
+				if (response.startsWith("250") || response.startsWith("500"))
+					sendCOVECommand();
+				else
+					errorOut(response);
+				break;
+				
+				
+			case STATE_COVE:
+				if (response.startsWith("250") || response.startsWith("500"))
+					sendLEVECommand();
+				else
+					errorOut(response);
+				break;
+				
+				
+			case STATE_LEVE:
+				if (response.startsWith("250") || response.startsWith("500"))
+					sendHOLDCommand();
+				else
+					errorOut(response);
+				break;
+				
+				
+			case STATE_HOLD:
+				if (response.startsWith("250") || response.startsWith("500"))
+					sendALERCommand();
+				else
+					errorOut(response);
+				break;
+				
+				
+			case STATE_ALER:
+				if (response.startsWith("250") || response.startsWith("500")) 
+					sendMESSCommand();
+				else
+					errorOut(response);
+				break;
+				
 
 			case STATE_PAGE:
 				if (response.startsWith("250")) {
-					if ((level >= 2) && (callerIdentifier != null))
+					if (level >= 2)
 						sendCALLCommand();
 					else
 						sendMESSCommand();
@@ -222,6 +327,15 @@ public class Message {
 					errorOut(response);
 				break;
 
+				
+			case STATE_CALL:
+				if (response.startsWith("250") || response.startsWith("500"))
+					sendSUBJCommand();
+				else
+					errorOut(response);
+				break;
+
+				
 			case STATE_MESS:
 				if (response.startsWith("250"))
 					sendSENDCommand();
@@ -229,7 +343,9 @@ public class Message {
 					errorOut(response);
 				break;
 
+				
 			case STATE_SEND:
+				// Accept level 1-3 success messages
 				if (response.startsWith("250")
 						|| response.startsWith("860") 
 						|| response.startsWith("960"))
@@ -238,6 +354,7 @@ public class Message {
 					errorOut(response);
 				break;
 
+				
 			case STATE_QUIT:
 				if (response.startsWith("221"))
 					conn.close();
@@ -257,16 +374,62 @@ public class Message {
 	
 	
 	private void sendCALLCommand() throws IOException, Exception {
-		state = STATE_CALL;
-		String msg = "CALL " + callerIdentifier;
-		handleResponse(conn.send(msg));
+		if (callerIdentifier != null) {
+			state = STATE_CALL;
+			String msg = "CALL " + callerIdentifier;
+			handleResponse(conn.send(msg));
+		} else {
+			sendMESSCommand();
+		}
 	}
 	
+	private void sendCOVECommand() throws IOException, Exception {
+		if (coverageArea < 0) {
+			state = STATE_COVE;
+			String msg = "COVE " + coverageArea;
+			handleResponse(conn.send(msg));
+		} else {
+			sendLEVECommand();
+		}
+	}
+	
+	private void sendLEVECommand() throws IOException, Exception {
+		if (serviceLevel < 0) {
+			state = STATE_LEVE;
+			String msg = "LEVE " + serviceLevel;
+			handleResponse(conn.send(msg));
+		} else {
+			sendHOLDCommand();
+		}
+	}
+	
+	private void sendHOLDCommand() throws IOException, Exception {
+		if (holdUntil != null) {
+			state = STATE_HOLD;
+			String msg = "HOLD " + holdUntil;
+			handleResponse(conn.send(msg));
+		} else {
+			sendALERCommand();
+		}
+	}
+	
+	private void sendALERCommand() throws IOException, Exception {
+		if (alertOverride) {
+			state = STATE_ALER;
+			handleResponse(conn.send("ALER"));
+		} else {
+			sendPAGECommand();
+		}
+	}
 	
 	private void sendSUBJCommand() throws IOException, Exception {
-		state = STATE_SUBJ;
-		String msg = "SUBJ " + subject;
-		handleResponse(conn.send(msg));
+		if (subject != null) {
+			state = STATE_SUBJ;
+			String msg = "SUBJ " + subject;
+			handleResponse(conn.send(msg));
+		} else {
+			sendMESSCommand();
+		}
 	}
 
 
@@ -288,9 +451,20 @@ public class Message {
 		handleResponse(conn.send("QUIT"));
 	}
 
+	
+	private void sendLOGICommand() throws IOException, Exception {
+		if (login != null) {
+			state = STATE_LOGI;
+			String msg = "LOGI " + login;
+			handleResponse(conn.send(msg));
+		} else {
+			sendCOVECommand();
+		}
+	}
 
 	private void errorOut(String badResponse) throws Exception {
-		throw new Exception ("Unexpected response received during state "
-				+ state + ":\n" + badResponse);
+		//throw new Exception ("Unexpected response received during state "
+		//		+ state + ":\n" + badResponse);
+		throw new Exception (badResponse);
 	}
 }
