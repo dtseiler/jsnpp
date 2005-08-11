@@ -192,10 +192,10 @@
 
     <!-- Output Java build version info -->
     <echo level="info" file="${releaseDir}/BUILDINFO">
-      This ${ant.project.name} distribution was built on the following:
-      JRE version: ${java.version}
-      JRE vendor: ${java.vendor} (${java.vendor.url})
-      Built on: ${os.name} ${os.version} architecture: ${os.arch}
+This ${ant.project.name} distribution was built on the following:
+JRE version: ${java.version}
+JRE vendor: ${java.vendor} (${java.vendor.url})
+Built on: ${os.name} ${os.version} architecture: ${os.arch}
     </echo>
 
     <copy todir="${releaseDir}" includeemptydirs="no">
@@ -206,6 +206,7 @@
         <exclude name="**/.*.sw?"/>
       </fileset>
     </copy>
+    <delete dir="${releaseDir}/nbproject"/>
 
     <tar tarfile="${dist}/${ant.project.name}-${version}.tar" basedir="${dist}"/>
     <gzip src="${dist}/${ant.project.name}-${version}.tar" zipfile="${dist}/${ant.project.name}-${version}.tar.gz"/>
