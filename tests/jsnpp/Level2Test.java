@@ -19,23 +19,47 @@
 
 package jsnpp;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import junit.framework.TestCase;
 
 /**
- * Runs all tests
+ * The SNPP Level 2 test case.
  *
  * @author Don Seiler <don@NOSPAM.seiler.us>
  * @version $Revision$
  */
-public class AllTests {
-	public static Test suite() {
-		TestSuite suite = new TestSuite();
+public class Level2Test extends TestCase {
+	Message m = null;
+	String[] data = { "This", "is being", "sent on separate", "lines." };
+	
+	public Level2Test (String n) {
+		super(n);
+	}
 
-		suite.addTestSuite(Level1Test.class);
-		suite.addTestSuite(Level2Test.class);
-		//suite.addTestSuite(Level3Test.class);
+	protected void setUp() {
+		m = new Message("test.mysnppserver.com", 444, "don");
+		//m.setLevel(2);
+		m.setSubject("The Subject");
+		//m.setCoverageArea(2);
+		m.setAlertOverride(true);
+		m.setData(data);
+	}
 
-		return suite;
+	protected void tearDown() {
+	}
+
+	public void testSendPage() {
+		try {
+			m.send();
+			System.out.println("Level 2 page sent.");
+		} catch (UnknownHostException e) {
+			System.err.println("Unknown host: " + e.getMessage());
+		} catch (IOException e) {
+			System.err.println("IO error: " + e.getMessage());
+		} catch (Exception e) {
+			System.err.println("Error sending message: " + e.getMessage());
+		}
 	}
 }
+

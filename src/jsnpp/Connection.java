@@ -81,7 +81,23 @@ public class Connection {
 
 	/** Sends data to SNPP server */
 	public String send(String data) throws IOException {
+		return send(data, true);
+	}
+	
+	public String send(String data, boolean wait) throws IOException {
+		String response = null;
+		
+		// Send command to server
 		out.println(data);
-		return in.readLine();
+		//System.out.println(data);
+		
+		// Read response
+		if (wait) {
+			response = in.readLine();
+			//System.out.println(response);
+		}
+		
+		// Return response, or null
+		return response;
 	}
 }

@@ -58,9 +58,6 @@ public class Message {
 	/** Pager (recipient) */
 	private String pager = null;
 
-	/** CallerIdentifier */
-	private String callerIdentifier = null;
-
 	/** Message */
 	private String message = null;
 	
@@ -70,6 +67,9 @@ public class Message {
 	 * A message cannot send both MESS and DATA.
 	 */
 	private String[] data = null;
+	
+	/** CallerIdentifier */
+	private String callerIdentifier = null;
 	
 	/** Subject */
 	private String subject = null;
@@ -91,9 +91,21 @@ public class Message {
 
 	/** Level */
 	private int level = MAX_SNPP_LEVEL;
+	
+	/** Track this response */
+	private String sendResponse = null;
 
 	/** Constructor */
 	public Message() {
+	}
+	
+	/** Constructor */
+	public Message (String host,
+					int port,
+					String pager) {
+		setPager(pager);
+		
+		setConnectionInfo(host, port);
 	}
 	
 	/** Constructor */
@@ -104,8 +116,7 @@ public class Message {
 		setPager(pager);
 		setMessage(message);
 		
-		conn = new Connection(host, port);
-		state = STATE_CONN;
+		setConnectionInfo(host, port);
 	}
 
 	/** 
@@ -125,13 +136,11 @@ public class Message {
 		setConnectionInfo(host, port);
 	}
 
-
 	/** Returns state */
 	public int getState () {
 		return state;
 	}
 
-	
 	/** Returns callerIdentifier */
 	public String getCallerIdentifier () {
 		return callerIdentifier;
@@ -156,7 +165,6 @@ public class Message {
 		return message;
 	}
 
-
 	/** Sets connection info */
 	public void setConnectionInfo(String host, int port) {
 		conn = new Connection(host, port);
@@ -176,7 +184,6 @@ public class Message {
 	public void setSender(String sender) {
 		setCallerIdentifier(sender);
 	}
-	
 	
 	/** Sets callerIdentifer */
 	public void setCallerIdentifier(String callerIdentifier) {
@@ -221,9 +228,18 @@ public class Message {
 		this.subject = subject;
 	}
 	
+	public String getSubject() {
+		return subject;
+	}
+	
 	/** Sets data */
 	public void setData(String[] data) {
 		this.data = data;
+	}
+	
+	/** Returns data */
+	public String[] getData() {
+		return data;
 	}
 	
 	/** Sets alert override */
@@ -231,6 +247,10 @@ public class Message {
 		this.alertOverride = alertOverride;
 	}
 	
+	/** Returns alert override */
+	public boolean getAlertOverride() {
+		return alertOverride;
+	}
 	
 	/**
 	 * Sets holdUntil
@@ -240,11 +260,45 @@ public class Message {
 	public void setHoldUntil(String holdUntil) {
 		this.holdUntil = holdUntil;
 	}
-
+	
+	/** Returns "hold until" value */
+	public String getHoldUntil() {
+		return holdUntil;
+	}
 	
 	/** Sets login */
 	public void setLogin(String login) {
 		this.login = login;
+	}
+	
+	/** Returns login */
+	public String getLogin() {
+		return login;
+	}
+	
+	/** Sets coverage area */
+	public void setCoverageArea(int coverageArea) {
+		this.coverageArea = coverageArea;
+	}
+	
+	/** Returns coverage area */
+	public int getCoverageArea() {
+		return coverageArea;
+	}
+	
+	/** Sets service level */
+	public void setServiceLevel(int serviceLevel) {
+		this.serviceLevel = serviceLevel;
+	}
+	
+	/** Returns service level */
+	public int getServiceLevel() {
+		return serviceLevel;
+	}
+	
+	/** Returns response from SEND command */
+	public String getSENDResponse() {
+		return sendResponse;
 	}
 	
 	//
@@ -263,8 +317,9 @@ public class Message {
 	 * functions (optional as defined in RFC 1861).
 	 */
 	private void handleResponse(String response) throws IOException, Exception {
-		
+				
 		// XXX PAGE should be sent AFTER LEVE, ALER, HOLD, COVE
+		
 		switch (state) {
 			case STATE_CONN:
 				if (response.startsWith("220"))
@@ -311,7 +366,7 @@ public class Message {
 				
 			case STATE_ALER:
 				if (response.startsWith("250") || response.startsWith("500")) 
-					sendMESSCommand();
+					sendPAGECommand();
 				else
 					errorOut(response);
 				break;
@@ -334,6 +389,14 @@ public class Message {
 				else
 					errorOut(response);
 				break;
+				
+				
+			case STATE_SUBJ:
+				if (response.startsWith("250") || response.startsWith("500"))
+					sendMESSCommand();
+				else
+					errorOut(response);
+				break;
 
 				
 			case STATE_MESS:
@@ -342,10 +405,20 @@ public class Message {
 				else
 					errorOut(response);
 				break;
+				
+			case STATE_DATA:
+				if (response.startsWith("354"))
+					sendDATAData();
+				else if (response.startsWith("250"))
+					sendSENDCommand();
+				else
+					errorOut(response);
+				break;
 
 				
 			case STATE_SEND:
 				// Accept level 1-3 success messages
+				sendResponse = response;
 				if (response.startsWith("250")
 						|| response.startsWith("860") 
 						|| response.startsWith("960"))
@@ -384,7 +457,7 @@ public class Message {
 	}
 	
 	private void sendCOVECommand() throws IOException, Exception {
-		if (coverageArea < 0) {
+		if (coverageArea > 0) {
 			state = STATE_COVE;
 			String msg = "COVE " + coverageArea;
 			handleResponse(conn.send(msg));
@@ -394,7 +467,7 @@ public class Message {
 	}
 	
 	private void sendLEVECommand() throws IOException, Exception {
-		if (serviceLevel < 0) {
+		if (serviceLevel > 0) {
 			state = STATE_LEVE;
 			String msg = "LEVE " + serviceLevel;
 			handleResponse(conn.send(msg));
@@ -435,8 +508,12 @@ public class Message {
 
 	private void sendMESSCommand() throws IOException, Exception {
 		state = STATE_MESS;
-		String msg = "MESS " + message;
-		handleResponse(conn.send(msg));
+		if ((level >= 2)&&(message == null)) {
+			sendDATACommand();
+		} else {
+			String msg = "MESS " + message;
+			handleResponse(conn.send(msg));
+		}
 	}
 
 
@@ -460,6 +537,18 @@ public class Message {
 		} else {
 			sendCOVECommand();
 		}
+	}
+	
+	private void sendDATACommand() throws IOException, Exception {
+		state = STATE_DATA;
+		handleResponse(conn.send("DATA"));
+	}
+	
+	private void sendDATAData() throws IOException, Exception {
+		for (int i=0; i < data.length; i++) {
+			conn.send(data[i], false);
+		}
+		handleResponse(conn.send("."));
 	}
 
 	private void errorOut(String badResponse) throws Exception {

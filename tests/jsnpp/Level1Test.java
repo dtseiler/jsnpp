@@ -46,6 +46,7 @@ public class Level1Test extends TestCase {
 	public void testSendPage() {
 		try {
 			m.send();
+			System.out.println("Response was: " + m.getSENDResponse());
 			System.out.println("Level 1 page sent.");
 		} catch (UnknownHostException e) {
 			System.err.println("Unknown host: " + e.getMessage());

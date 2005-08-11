@@ -1,9 +1,16 @@
 ChangeLog for jsnpp - http://jsnpp.sourceforge.net
 $Id$
 
-*jsnpp-0.1.1cvs
+*jsnpp-0.2.0cvs
 	Bug Fixes:
 	* Fixed distfile creation so it is tarred inside a release dir.
+
+	New Features:
+	* Added support for SNPP Level 2 commands.
+	* Added support for SNPP Level 3 SEND respones 860 & 890.
+	* Added Message.getSENDResponse() function for user to get the server
+	  response to the SEND command.
+	* API documentation available at http://jsnpp.sourceforge.net/api/
 
 *jsnpp-0.1.0 (20 May 2005)
 	* Initial creation.
