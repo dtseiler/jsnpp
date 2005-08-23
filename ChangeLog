@@ -1,6 +1,11 @@
 ChangeLog for jsnpp - http://jsnpp.sourceforge.net
 $Id$
 
+*jsnpp-0.2.1 (23 Aug 2005)
+	Bug Fixes:
+	* Changed build process to put version in jsnpp jar file name, like all
+          good libs should.  This one will be jsnpp-0.2.1.jar.
+
 *jsnpp-0.2.0 (11 Aug 2005)
 	Bug Fixes:
 	* Fixed distfile creation so it is tarred inside a release dir.

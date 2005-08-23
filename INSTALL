@@ -1,5 +1,11 @@
 # $Id$
 
+INSTALLATION
+~~~~~~~~~~~~
+You only need to copy the jsnpp-x.y.z.jar file to somewhere in your classpath.
+
+BUILDING
+~~~~~~~~
 JSNPP requires apache ant, http://ant.apache.org, to build.  Once you have
 apache ant installed, you can build JSNPP with
 

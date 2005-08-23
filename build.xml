@@ -24,9 +24,6 @@
 
 <project name="jsnpp" basedir="." default="api-jar">
 
-  <!-- Load in the build properties -->
-  <property file="build.properties"/>
-
   <!-- Get VERSION and set up filter for @VERSION@ string -->
   <loadfile property="version" srcFile="VERSION">
       <filterchain>
@@ -34,6 +31,9 @@
       </filterchain>
   </loadfile>
   <filter token="VERSION" value="${version}"/>
+
+  <!-- Load in the build properties -->
+  <property file="build.properties"/>
 
   <!-- Any libraries needed to build the base API go in here. -->
   <path id="build.classpath">
