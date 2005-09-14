@@ -77,6 +77,9 @@ public class Message {
 	/** Login */
 	private String login = null;
 	
+	/** Password */
+	private String password = null;
+	
 	/** Service Level */
 	private int serviceLevel = -1;
 	
@@ -269,6 +272,12 @@ public class Message {
 	/** Sets login */
 	public void setLogin(String login) {
 		this.login = login;
+	}
+	
+	/** Sets login with password */
+	public void SetLogin(String login, String password) {
+		this.login = login;
+		this.password = password;
 	}
 	
 	/** Returns login */
@@ -533,6 +542,8 @@ public class Message {
 		if (login != null) {
 			state = STATE_LOGI;
 			String msg = "LOGI " + login;
+			if (password != null)
+				msg.concat(" " + password);
 			handleResponse(conn.send(msg));
 		} else {
 			sendCOVECommand();
