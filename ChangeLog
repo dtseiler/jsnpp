@@ -1,10 +1,14 @@
 ChangeLog for jsnpp - http://jsnpp.sourceforge.net
 $Id$
 
-*jsnpp-0.2.1 (23 Aug 2005)
+*jsnpp-0.3.0 (14 Sep 2005)
 	Bug Fixes:
 	* Changed build process to put version in jsnpp jar file name, like all
-          good libs should.  This one will be jsnpp-0.2.1.jar.
+          good libs should.  This one will be jsnpp-0.3.0.jar.
+	
+	New Features:
+	* Added in password support for LOGI command, just call
+	  Message.setLogin(login, password).
 
 *jsnpp-0.2.0 (11 Aug 2005)
 	Bug Fixes:
