@@ -49,59 +49,76 @@ public class Message {
 	public static final int STATE_CALL = 27;
 	public static final int STATE_ALER = 28;
 
+
 	/** Connection to server */
 	private Connection conn = null;
+
 
 	/** Message state */
 	private int state = STATE_UNDEF;
 
+
 	/** Pager (recipient) */
 	private String pager = null;
 
+
 	/** Message */
 	private String message = null;
-	
+
+
 	/** 
 	 * Data 
 	 *
 	 * A message cannot send both MESS and DATA.
 	 */
 	private String[] data = null;
-	
+
+
 	/** CallerIdentifier */
 	private String callerIdentifier = null;
-	
+
+
 	/** Subject */
 	private String subject = null;
-	
+
+
 	/** Login */
 	private String login = null;
-	
+
+
 	/** Password */
 	private String password = null;
-	
+
+
 	/** Service Level */
 	private int serviceLevel = -1;
-	
+
+
 	/** Coverage Area */
 	private int coverageArea = -1;
-	
+
+
 	/** Hold Until YYMMDDHHMISS (+/- GMT diff) */
 	private String holdUntil = null;
-	
+
+
 	/** Alert Override 0-DoNotAlert or 1-Alert */
 	private boolean alertOverride = false;
 
+
 	/** Level */
 	private int level = MAX_SNPP_LEVEL;
-	
+
+
 	/** Track this response */
 	private String sendResponse = null;
+
 
 	/** Constructor */
 	public Message() {
 	}
-	
+
+
 	/** Constructor */
 	public Message (String host,
 					int port,
@@ -110,7 +127,8 @@ public class Message {
 		
 		setConnectionInfo(host, port);
 	}
-	
+
+
 	/** Constructor */
 	public Message (String host,
 					int port,
@@ -121,6 +139,7 @@ public class Message {
 		
 		setConnectionInfo(host, port);
 	}
+
 
 	/** 
 	 * Constructor 
@@ -139,15 +158,18 @@ public class Message {
 		setConnectionInfo(host, port);
 	}
 
+
 	/** Returns state */
 	public int getState () {
 		return state;
 	}
 
+
 	/** Returns callerIdentifier */
 	public String getCallerIdentifier () {
 		return callerIdentifier;
 	}
+
 
 	/**
 	 * Returns recipient 
@@ -157,16 +179,19 @@ public class Message {
 	public String getRecipient () {
 		return getPager();
 	}
-	
+
+
 	/** Returns pager */
 	public String getPager() {
 		return pager;
 	}
 
+
 	/** Returns message */
 	public String getMessage () {
 		return message;
 	}
+
 
 	/** Sets connection info */
 	public void setConnectionInfo(String host, int port) {
@@ -174,10 +199,12 @@ public class Message {
 		state = STATE_CONN;
 	}
 
+
 	/** Sets state */
 	public void setState(int state) {
 		this.state = state;
 	}
+
 
 	/** 
 	 * Sets sender 
@@ -187,11 +214,13 @@ public class Message {
 	public void setSender(String sender) {
 		setCallerIdentifier(sender);
 	}
-	
+
+
 	/** Sets callerIdentifer */
 	public void setCallerIdentifier(String callerIdentifier) {
 		this.callerIdentifier = callerIdentifier;
 	}
+
 
 	/** 
 	 * Sets recipient 
@@ -201,11 +230,13 @@ public class Message {
 	public void setRecipient(String recipient) {
 		setPager(recipient);
 	}
-	
+
+
 	/** Sets pager */
 	public void setPager(String pager) {
 		this.pager = pager;
 	}
+
 
 	/** Sets message */
 	public void setMessage(String message) {
@@ -213,10 +244,12 @@ public class Message {
 		this.message = message;
 	}
 
+
 	/** Returns SNPP level of this message */
 	public int getLevel() {
 		return level;
 	}
+
 
 	/** Sets SNPP level of this message */
 	public void setLevel(int level) {
@@ -225,100 +258,124 @@ public class Message {
 		else
 			this.level = MAX_SNPP_LEVEL;
 	}
-	
+
+
 	/** Sets subject */
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
-	
+
+
+	/** Returns subject */
 	public String getSubject() {
 		return subject;
 	}
-	
+
+
 	/** Sets data */
 	public void setData(String[] data) {
 		this.data = data;
 	}
-	
+
+
 	/** Returns data */
 	public String[] getData() {
 		return data;
 	}
-	
+
+
 	/** Sets alert override */
 	public void setAlertOverride(boolean alertOverride) {
 		this.alertOverride = alertOverride;
 	}
-	
+
+
 	/** Returns alert override */
 	public boolean getAlertOverride() {
 		return alertOverride;
 	}
-	
+
+
 	/**
 	 * Sets holdUntil
-	 * 
+	 *
 	 * Must be in YYMMDDHHMISS format
 	 */
 	public void setHoldUntil(String holdUntil) {
 		this.holdUntil = holdUntil;
 	}
-	
+
+
 	/** Returns "hold until" value */
 	public String getHoldUntil() {
 		return holdUntil;
 	}
-	
+
+
 	/** Sets login */
 	public void setLogin(String login) {
 		this.login = login;
 	}
-	
+
+
 	/** Sets login with password */
 	public void SetLogin(String login, String password) {
 		this.login = login;
 		this.password = password;
 	}
-	
+
+
 	/** Returns login */
 	public String getLogin() {
 		return login;
 	}
-	
+
+
 	/** Sets coverage area */
 	public void setCoverageArea(int coverageArea) {
 		this.coverageArea = coverageArea;
 	}
-	
+
+
 	/** Returns coverage area */
 	public int getCoverageArea() {
 		return coverageArea;
 	}
-	
+
+
 	/** Sets service level */
 	public void setServiceLevel(int serviceLevel) {
 		this.serviceLevel = serviceLevel;
 	}
-	
+
+
 	/** Returns service level */
 	public int getServiceLevel() {
 		return serviceLevel;
 	}
-	
+
+
 	/** Returns response from SEND command */
 	public String getSENDResponse() {
 		return sendResponse;
 	}
-	
+
+
 	//
 	// Function to format and send messages
 	//
 
-	/** Connects to server and sends message */
+	/**
+	 * Connects to server and sends message.
+	 *
+	 * @throws	IOException		If bad socket I/O with SNPP server.
+	 * @throws	Exception		If bad or unknown server response received.
+	 */
 	public void send() throws IOException, Exception{
 		handleResponse(conn.connect());
 	}
-	
+
+
 	/**
 	 * Handles reponse from server.
 	 *
@@ -326,7 +383,7 @@ public class Message {
 	 * functions (optional as defined in RFC 1861).
 	 */
 	private void handleResponse(String response) throws IOException, Exception {
-				
+
 		// XXX PAGE should be sent AFTER LEVE, ALER, HOLD, COVE
 		
 		switch (state) {
@@ -444,7 +501,6 @@ public class Message {
 					errorOut(response);
 				break;
 		}
-
 	}
 
 
@@ -453,8 +509,8 @@ public class Message {
 		String msg = "PAGE " + pager;
 		handleResponse(conn.send(msg));
 	}
-	
-	
+
+
 	private void sendCALLCommand() throws IOException, Exception {
 		if (callerIdentifier != null) {
 			state = STATE_CALL;
@@ -464,7 +520,8 @@ public class Message {
 			sendMESSCommand();
 		}
 	}
-	
+
+
 	private void sendCOVECommand() throws IOException, Exception {
 		if (coverageArea > 0) {
 			state = STATE_COVE;
@@ -474,7 +531,8 @@ public class Message {
 			sendLEVECommand();
 		}
 	}
-	
+
+
 	private void sendLEVECommand() throws IOException, Exception {
 		if (serviceLevel > 0) {
 			state = STATE_LEVE;
@@ -484,7 +542,8 @@ public class Message {
 			sendHOLDCommand();
 		}
 	}
-	
+
+
 	private void sendHOLDCommand() throws IOException, Exception {
 		if (holdUntil != null) {
 			state = STATE_HOLD;
@@ -494,7 +553,8 @@ public class Message {
 			sendALERCommand();
 		}
 	}
-	
+
+
 	private void sendALERCommand() throws IOException, Exception {
 		if (alertOverride) {
 			state = STATE_ALER;
@@ -503,7 +563,8 @@ public class Message {
 			sendPAGECommand();
 		}
 	}
-	
+
+
 	private void sendSUBJCommand() throws IOException, Exception {
 		if (subject != null) {
 			state = STATE_SUBJ;
@@ -537,7 +598,7 @@ public class Message {
 		handleResponse(conn.send("QUIT"));
 	}
 
-	
+
 	private void sendLOGICommand() throws IOException, Exception {
 		if (login != null) {
 			state = STATE_LOGI;
@@ -549,12 +610,14 @@ public class Message {
 			sendCOVECommand();
 		}
 	}
-	
+
+
 	private void sendDATACommand() throws IOException, Exception {
 		state = STATE_DATA;
 		handleResponse(conn.send("DATA"));
 	}
-	
+
+
 	private void sendDATAData() throws IOException, Exception {
 		for (int i=0; i < data.length; i++) {
 			conn.send(data[i], false);
@@ -562,9 +625,8 @@ public class Message {
 		handleResponse(conn.send("."));
 	}
 
+
 	private void errorOut(String badResponse) throws Exception {
-		//throw new Exception ("Unexpected response received during state "
-		//		+ state + ":\n" + badResponse);
 		throw new Exception (badResponse);
 	}
 }
