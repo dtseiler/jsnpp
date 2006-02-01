@@ -377,7 +377,7 @@ public class Message {
 
 
 	/**
-	 * Handles reponse from server.
+	 * Handles response from server.
 	 *
 	 * We ignore all 500 messages (Command Not Implemented) from optional Level 2
 	 * functions (optional as defined in RFC 1861).
@@ -399,7 +399,8 @@ public class Message {
 				
 				
 			case STATE_LOGI:
-				if (response.startsWith("250") || response.startsWith("500"))
+                // 230 is a success response that Hylafax server software uses, for some reason.
+				if (response.startsWith("230") || response.startsWith("250") || response.startsWith("500"))
 					sendCOVECommand();
 				else
 					errorOut(response);
@@ -602,9 +603,7 @@ public class Message {
 	private void sendLOGICommand() throws IOException, Exception {
 		if (login != null) {
 			state = STATE_LOGI;
-			String msg = "LOGI " + login;
-			if (password != null)
-				msg.concat(" " + password);
+            String msg = "LOGI "+ login + ((password != null) ? " " + password : "");
 			handleResponse(conn.send(msg));
 		} else {
 			sendCOVECommand();
