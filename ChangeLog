@@ -1,7 +1,7 @@
 ChangeLog for jsnpp - http://jsnpp.sourceforge.net
 $Id$
 
-*jsnpp-0.3.1cvs
+*jsnpp-0.3.1 (01 Feb 2006)
 	Bug Fixes:
 	* Fixed errors in LOGI with password due to misuse of String.concat().
 	  Thanks cainey at users.sourceforge.net.
@@ -9,6 +9,7 @@ $Id$
 	New Features:
 	* Accepting 230 success code from LOGI for naughty Hylafax SNPP servers.
 	  Thanks cainey at users.sourceforge.net.
+	* Now building zip files for distribution.
 
 *jsnpp-0.3.0 (14 Oct 2005)
 	Bug Fixes:

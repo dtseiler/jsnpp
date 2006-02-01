@@ -211,6 +211,7 @@ Built on: ${os.name} ${os.version} architecture: ${os.arch}
     <tar tarfile="${dist}/${ant.project.name}-${version}.tar" basedir="${dist}"/>
     <gzip src="${dist}/${ant.project.name}-${version}.tar" zipfile="${dist}/${ant.project.name}-${version}.tar.gz"/>
     <delete file="${dist}/${ant.project.name}-${version}.tar"/>
+    <zip destfile="${dist}/${ant.project.name}-${version}.zip" basedir="${dist}" excludes="**/*.gz"/>
   </target>
 
   <target name="clean-dist" depends="init">
@@ -218,13 +219,17 @@ Built on: ${os.name} ${os.version} architecture: ${os.arch}
   </target>
 
   <target name="upload">
-      <property name="releaseFile" value="${dist}/${ant.project.name}-${version}.tar.gz"/>
+      <!--<property name="releaseFile" value="${dist}/${ant.project.name}-${version}.tar.gz"/>-->
       <ftp
           server="upload.sourceforge.net"
           userid="anonymous"
           password="rizzo@users.sourceforge.net"
           remotedir="/incoming">
-          <fileset file="${releaseFile}"/>
+          <!--<fileset file="${releaseFile}"/>-->
+        <fileset dir="${dist}">
+            <filename name="${ant.project.name}-${version}.tar.gz"/>
+            <filename name="${ant.project.name}-${version}.zip"/>
+        </fileset>
       </ftp>
   </target>
 
