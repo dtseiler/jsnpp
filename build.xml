@@ -227,8 +227,8 @@ Built on: ${os.name} ${os.version} architecture: ${os.arch}
           remotedir="/incoming">
           <!--<fileset file="${releaseFile}"/>-->
         <fileset dir="${dist}">
-            <filename name="${ant.project.name}-${version}.tar.gz"/>
-            <filename name="${ant.project.name}-${version}.zip"/>
+            <include name="**/${ant.project.name}-${version}.tar.gz"/>
+            <include name="**/${ant.project.name}-${version}.zip"/>
         </fileset>
       </ftp>
   </target>
