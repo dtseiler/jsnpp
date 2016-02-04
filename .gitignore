@@ -1,3 +1,5 @@
 builds
 docs
-lib
+dist
+nbproject
+sqlnet.log
