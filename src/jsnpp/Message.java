@@ -113,6 +113,12 @@ public class Message {
 	/** Track this response */
 	private String sendResponse = null;
 
+	/** Socket connection timeout in millis.  Zero is an infinite timeout. **/
+	int socketConnectTimeout = 0;
+
+	/** Socket read timeout in millis. Zero is an infinite timeout. **/
+	private int socketInputTimeout = 0;
+	
 
 	/** Constructor */
 	public Message() {
@@ -199,6 +205,39 @@ public class Message {
 		state = STATE_CONN;
 	}
 
+	/** Get the socket SO_TIMEOUT (read) timeout, in milliseconds **/
+	public int getSocketInputTimeout() {
+		return socketInputTimeout;
+	}
+
+	/**
+	 * Enable/disable the socket SO_TIMEOUT with the specified (read) timeout, in milliseconds.
+	 * The timeout must be > 0. A timeout of zero is interpreted as an infinite timeout.
+	 *
+	 * @param socketInputTimeout
+     	*/
+	public void setSocketInputTimeout(int socketInputTimeout) {
+		if (socketInputTimeout >= 0) {
+			this.socketInputTimeout = socketInputTimeout;
+		}
+	}
+
+	/** Get the server connection timeout, in milliseconds **/
+	public int getSocketConnectTimeout() {
+		return socketConnectTimeout;
+	}
+
+	/**
+	 * Set the server connection timeout value in milliseconds.
+	 * A timeout of zero is interpreted as an infinite timeout.
+	 *
+	 * @param socketConnectTimeout
+     	*/
+	public void setSocketConnectTimeout(int socketConnectTimeout) {
+		if (socketConnectTimeout >= 0) {
+			this.socketConnectTimeout = socketConnectTimeout;
+		}
+	}
 
 	/** Sets state */
 	public void setState(int state) {
@@ -372,7 +411,7 @@ public class Message {
 	 * @throws	Exception		If bad or unknown server response received.
 	 */
 	public void send() throws IOException, Exception{
-		handleResponse(conn.connect());
+		handleResponse(conn.connect(socketConnectTimeout, socketInputTimeout));
 	}
 
 
