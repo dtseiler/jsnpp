@@ -407,10 +407,11 @@ public class Message {
 	/**
 	 * Connects to server and sends message.
 	 *
+	 * @throws	SocketCloseException	if error while closing socket
 	 * @throws	IOException		If bad socket I/O with SNPP server.
 	 * @throws	Exception		If bad or unknown server response received.
 	 */
-	public void send() throws IOException, Exception{
+	public void send() throws SocketCloseException, IOException, Exception {
 		handleResponse(conn.connect(socketConnectTimeout, socketInputTimeout));
 	}
 
