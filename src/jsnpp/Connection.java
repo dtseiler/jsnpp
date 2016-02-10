@@ -95,14 +95,50 @@ public class Connection {
 		return in.readLine();
 	}
 
-
 	/**
 	 * Closes connection to SNPP server.
-	 */
-	public void close() throws IOException {
-		try { out.close(); } catch (Exception e) {}
-		try { in.close(); } catch (Exception e) {}
-		try { socket.close(); } catch (Exception e) {}
+	 * If any Exceptions are thrown while closing the streams or socket,
+	 * then the first Exception encountered will be re-thrown.
+	 *
+	 * @throws SocketCloseException		Exception thrown while closing the socket
+     	*/
+	public void close() throws SocketCloseException {
+
+		SocketCloseException sce = null;
+
+		if (out != null) {
+			try {
+				out.close();
+			} catch (Exception e) {
+				if (sce == null) {
+					sce = new SocketCloseException(e);
+				}
+			}
+		}
+
+		if (in != null) {
+			try {
+				in.close();
+			} catch (Exception e) {
+				if (sce == null) {
+					sce = new SocketCloseException(e);
+				}
+			}
+		}
+
+		if (socket != null) {
+			try {
+				socket.close();
+			} catch (Exception e) {
+				if (sce == null) {
+					sce = new SocketCloseException(e);
+				}
+			}
+		}
+
+		if (sce != null) {
+			throw sce;
+		}
 	}
 
 	/** Sends data to SNPP server */
