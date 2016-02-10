@@ -83,6 +83,8 @@ public class Connection {
 	 */
 	public String connect(int socketConnectTimeout, int socketInputTimeout)
 			throws UnknownHostException, IOException, SocketTimeoutException {
+		
+		Socket socket = new Socket();
 		socket.connect(new InetSocketAddress(host, port), socketConnectTimeout);
 		socket.setSoTimeout(socketInputTimeout);
 
@@ -98,9 +100,9 @@ public class Connection {
 	 * Closes connection to SNPP server.
 	 */
 	public void close() throws IOException {
-		out.close();
-		in.close();
-		socket.close();
+		try { out.close(); } catch (Exception e) {}
+		try { in.close(); } catch (Exception e) {}
+		try { socket.close(); } catch (Exception e) {}
 	}
 
 	/** Sends data to SNPP server */
