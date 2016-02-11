@@ -55,7 +55,7 @@
   <target name="compile-api" depends="init">
     <mkdir dir="${api-build}"/>
     <javac srcdir="${api-src}" destdir="${api-build}" deprecation="true"
-      debug="${build.debug}">
+      debug="${build.debug}" includeantruntime="false">
       <classpath refid="build.classpath"/>
     </javac>
   </target>
@@ -100,7 +100,7 @@
   <target name="compile-examples" depends="init,compile-api">
     <mkdir dir="${examples-build}"/>
     <javac srcdir="${examples-src}" destdir="${examples-build}"
-        deprecation="true">
+        deprecation="true" includeantruntime="false">
       <classpath>
         <path refid="build.classpath"/>
         <pathelement location="${api-build}"/>
@@ -125,7 +125,7 @@
   <target name="compile-tests" depends="init,compile-api">
     <mkdir dir="${tests-build}"/>
     <javac srcdir="${tests-src}" destdir="${tests-build}" deprecation="true"
-      debug="true">
+      debug="true" includeantruntime="false">
       <classpath>
         <pathelement location="${lib}/junit.jar"/>
         <pathelement location="${api-build}"/>
