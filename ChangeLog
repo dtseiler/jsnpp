@@ -1,5 +1,9 @@
-ChangeLog for jsnpp - http://jsnpp.sourceforge.net
-$Id$
+ChangeLog for jsnpp - https://github.com/dtseiler/jsnpp
+
+*jsnpp-1.0.0 (16 Feb 2016)
+	New Features:
+	* Added support for Connection and Socket timeouts.
+	* Welcome @mkellstrand to the project.
 
 *jsnpp-0.3.1 (01 Feb 2006)
 	Bug Fixes:
